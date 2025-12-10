@@ -1,0 +1,91 @@
+@import "tailwindcss";
+
+
+:root {
+  --primary-bg: #ffffff;
+  --secondary-bg: #f9fafb;
+  --text-primary: #111827;
+  --text-secondary: #6b7280;
+   /* Gradient Colors */
+  --grad-1: #4841d6;
+  --grad-2: #2d3d95;
+  --grad-3: #2e40eb;
+
+  /* Glass Effect Colors */
+  --glass-bg: rgba(255, 255, 255, 0.25);
+  --glass-border: rgba(255, 255, 255, 0.4);
+}
+
+.dark {
+  --primary-bg: #111827;
+  --secondary-bg: #1f2937;
+  --text-primary: #f9fafb;
+  --text-secondary: #d1d5db;
+   /* Dark-mode gradient (cooler, darker colors) */
+  --grad-1: #1d4ed8;
+  --grad-2: #49436c;
+  --grad-3: #272ddbaa;
+
+  /* Dark-mode glass effect */
+  --glass-bg: rgba(17, 17, 17, 0.45);
+  --glass-border: rgba(255, 255, 255, 0.1);
+}
+
+body {
+  background-color: var(--primary-bg);
+  color: var(--text-primary);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+.typing-cursor::after {
+  content: "|";
+  margin-left: 3px;
+  animation: blink 0.7s infinite;
+  opacity: 1;
+}
+
+@keyframes blink {
+  0% { opacity: 1; }
+  50% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+/* Animated gradient background */
+/* Animated gradient background */
+.bg-animate {
+  background: linear-gradient(
+    115deg,
+    var(--grad-1),
+    var(--grad-2),
+    var(--grad-3)
+  );
+  background-size: 400% 400%;
+  animation: gradientAnimation 10s ease infinite;
+}
+
+@keyframes gradientAnimation {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Floating glass effect */
+.glass {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+@keyframes floatingIcon {
+  0% { transform: translateY(0px) rotate(0deg); opacity: 0.3; }
+  50% { transform: translateY(-25px) rotate(10deg); opacity: 0.45; }
+  100% { transform: translateY(0px) rotate(0deg); opacity: 0.3; }
+}
+
+.animate-floatingIcon {
+  animation: floatingIcon linear infinite;
+}
+.bg-animate {
+  background: linear-gradient(115deg, var(--grad-1), var(--grad-2), var(--grad-3));
+  background-size: 400% 400%;
+  animation: gradientAnimation 10s ease infinite;
+}
