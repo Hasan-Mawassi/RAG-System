@@ -1,0 +1,78 @@
+version: "3.9"
+
+services:
+  frontend:
+    build:
+      context: ./rag-frontend
+      dockerfile: ../docker/frontend/Dockerfile
+    restart: always
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+
+  backend:
+    build:
+      context: ./rag-server
+      dockerfile: ../docker/backend/Dockerfile
+    restart: always
+
+    env_file:
+    - ./rag-server/.env
+
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+    command: >
+      sh -c "npx prisma migrate deploy && node dist/main.js"
+      
+    ports:
+      - "5000:5000"
+    depends_on:
+      - postgres
+      - chroma
+      - ollama
+
+  postgres:
+    image: postgres:16
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: ragdb
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  chroma:
+    image: chromadb/chroma:latest
+    restart: always
+    ports:
+      - "8000:8000"
+    volumes:
+      - chroma-data:/chroma
+
+  ollama:
+    image: ollama/ollama:latest
+    restart: always
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama-data:/root/.ollama
+    command: >
+      bash -c "
+      ollama serve &
+      sleep 5 &&
+      ollama pull qwen2:1.5b &&
+      ollama pull nomic-embed-text &&
+      tail -f /dev/null
+      "
+
+volumes:
+  pgdata:
+  chroma-data:
+  ollama-data:
