@@ -1,9 +1,3 @@
-// ============================================
-// STEP 5: Vector Store Service (src/services/vector-store.service.ts)
-// ============================================
-// Manages ChromaDB vector database for storing and retrieving document embeddings
-// ChromaDB allows efficient similarity search using cosine distance
-
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ChromaClient, Collection } from 'chromadb';
 import { Chroma } from '@langchain/community/vectorstores/chroma';
@@ -119,17 +113,6 @@ export class VectorStoreService implements OnModuleInit {
     k: number = 4,
   ): Promise<Document[]> {
     try {
-      // const ownerKey = chatId ? `${userId}::${chatId}` : `${userId}`;
-
-      // const filter = {
-      //   ownerKey: { $eq: ownerKey },
-      // };
-
-      // const results = await this.vectorStore.similaritySearch(
-      //   query,
-      //   k,
-      //   filter as any,
-      // );
       let filter: any;
 
       if (chatId) {
