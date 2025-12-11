@@ -13,7 +13,6 @@ export class UsersService {
   ) {}
 
   async create(createUserDto: CreateUserDto) {
-    // const hash = await bcrypt.hash(createUserDto.password, this.saltRounds);
     const hash = await this.passwordService.hashPassword(
       createUserDto.password,
     );
@@ -22,15 +21,11 @@ export class UsersService {
   }
 
   async findAll() {
-    // const users = await this.prisma.user.findMany();
     const users = await this.usersRepo.findAll();
     return users.map((u) => new UserResponse(u));
   }
 
   async findOne(id: string) {
-    // const user = await this.prisma.user.findUnique({
-    //   where: { id },
-    // });
     const user = await this.usersRepo.findById(id);
     if (!user) {
       throw new NotFoundException('User not found');

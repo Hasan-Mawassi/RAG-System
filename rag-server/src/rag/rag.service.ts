@@ -76,15 +76,6 @@ export class RagService {
         mimeType: file.mimetype,
         size: file.size,
       });
-      // const document = await this.prisma.document.create({
-      //   data: {
-      //     userId,
-      //     filename: file.originalname,
-      //     storagePath: 'path',
-      //     mimeType: file.mimetype,
-      //     size: file.size,
-      //   },
-      // });
 
       // Step 3: Process PDF (extract text and chunk)
       const chunks = await this.pdfService.processPdf(
@@ -101,9 +92,6 @@ export class RagService {
       );
       if (chatId) {
         await this.docRepo.linkDocumentToChat(chatId, document.id);
-        // await this.prisma.chatDocument.create({
-        //   data: { chatId, documentId: document.id },
-        // });
       }
       const processingTime = Date.now() - startTime;
       this.logger.log(
@@ -151,10 +139,6 @@ export class RagService {
     this.logger.log(`Processing query: "${question}"`);
 
     try {
-      // const chat = await this.prisma.chatSession.findFirst({
-      //   where: { id: chatId, userId },
-      // });
-      // if (!chat) throw new ForbiddenException('Chat does not belong to user');
       let ChatTitle = '';
       let titleUpdated = false;
       if (!chatId) {
@@ -167,9 +151,6 @@ export class RagService {
         titleUpdated = true;
       } else {
         // Validate chat belongs to user
-        // const chat = await this.prisma.chatSession.findFirst({
-        //   where: { id: chatId, userId },
-        // });
         const chat = await this.chatRepo.findUserChat(chatId, userId);
 
         await this.chatRepo.validateChatOwnership(chatId, userId);
@@ -179,10 +160,6 @@ export class RagService {
         if (chat.title === 'New Chat') {
           const newTitle = this.generateTitleFromQuestion(question);
 
-          // await this.prisma.chatSession.update({
-          //   where: { id: chatId },
-          //   data: { title: newTitle },
-          // });
           await this.chatRepo.updateChatTitle(chatId, newTitle);
           ChatTitle = newTitle;
           titleUpdated = true;
@@ -205,15 +182,6 @@ export class RagService {
         };
       }
       // Save user message before calling LLM
-      // await this.prisma.chatMessage.create({
-      //   data: {
-      //     chatId,
-      //     userId,
-      //     role: 'USER',
-      //     content: question,
-      //   },
-      // });
-      // Save user's question
       await this.msgRepo.createUserMessage(chatId, userId, question);
       // Step 2: Generate answer using LLM with retrieved context
       const answer = await this.llmService.generateAnswer(
@@ -230,24 +198,11 @@ export class RagService {
       }));
 
       // Save the assistant reply message
-      // const assistantMessage = await this.prisma.chatMessage.create({
-      //   data: {
-      //     chatId,
-      //     role: 'ASSISTANT',
-      //     content: answer,
-      //   },
-      // });
       const assistantMessage = await this.msgRepo.createAssistantMessage(
         chatId,
         answer,
       );
       // Save ALL sources in ONE row
-      // await this.prisma.messageSources.create({
-      //   data: {
-      //     messageId: assistantMessage.id,
-      //     sourcesJson: sources, // ⭐ array of objects
-      //   },
-      // });
       await this.msgRepo.saveMessageSources(assistantMessage.id, sources);
       const queryTime = Date.now() - startTime;
       this.logger.log(`Query completed in ${queryTime}ms`);
@@ -298,12 +253,6 @@ export class RagService {
       // 1. Ensure chat exists (create if null)
       // ----------------------------------------
       if (!chatId) {
-        // const chat = await this.prisma.chatSession.create({
-        //   data: {
-        //     userId,
-        //     title: this.generateTitleFromQuestion(question),
-        //   },
-        // });
         const chat = await this.chatRepo.createChat(
           userId,
           this.generateTitleFromQuestion(question),
@@ -312,34 +261,18 @@ export class RagService {
         ChatTitle = chat.title;
         titleUpdated = true;
       } else {
-        // Validate chat belongs to user
-        // const chat = await this.prisma.chatSession.findFirst({
-        //   where: { id: chatId, userId },
-        // });
         const chat = await this.chatRepo.findUserChat(chatId, userId);
         if (!chat) throw new ForbiddenException('Chat does not belong to user');
         ChatTitle = chat.title;
 
         if (chat.title === 'New Chat') {
           const newTitle = this.generateTitleFromQuestion(question);
-          // await this.prisma.chatSession.update({
-          //   where: { id: chatId },
-          //   data: { title: newTitle },
-          // });
           await this.chatRepo.updateChatTitle(chatId, newTitle);
           ChatTitle = newTitle;
           titleUpdated = true;
         }
       }
       // Save Q
-      // await this.prisma.chatMessage.create({
-      //   data: {
-      //     chatId,
-      //     userId,
-      //     role: 'USER',
-      //     content: question,
-      //   },
-      // });
       await this.msgRepo.createUserMessage(chatId, userId, question);
       const relevantDocs = await this.vectorStoreService.similaritySearch(
         question,
@@ -397,23 +330,10 @@ export class RagService {
 
       const queryTime = Date.now() - startTime;
       // Save full streamed answer
-      // const assistantMsg = await this.prisma.chatMessage.create({
-      //   data: {
-      //     chatId,
-      //     role: 'ASSISTANT',
-      //     content: fullAnswer,
-      //   },
-      // });
       const assistantMsg = await this.msgRepo.createAssistantMessage(
         chatId,
         fullAnswer,
       );
-      // await this.prisma.messageSources.create({
-      //   data: {
-      //     messageId: assistantMsg.id,
-      //     sourcesJson: sources,
-      //   },
-      // });
       await this.msgRepo.saveMessageSources(assistantMsg.id, sources);
       yield {
         type: 'done',
@@ -440,14 +360,10 @@ export class RagService {
     try {
       await this.vectorStoreService.deleteDocument(documentId);
       // 2. Delete chat-document relations
-      // await this.prisma.chatDocument.deleteMany({
-      //   where: { documentId },
-      // });
+
       await this.docRepo.unlinkDocumentFromChats(documentId);
       // 3. Delete the document row itself
-      // await this.prisma.document.delete({
-      //   where: { id: documentId },
-      // });
+
       await this.docRepo.deleteDocument(documentId);
       return {
         success: true,
@@ -462,26 +378,11 @@ export class RagService {
     }
   }
   async listChats(id: string) {
-    // return await this.prisma.chatSession.findMany({
-    //   where: { userId: id },
-    //   orderBy: { updatedAt: 'desc' },
-    // });
     return await this.chatRepo.listChats(id);
   }
   async getChatMessages(chatId: string, userId: string) {
     await this.chatRepo.validateChatOwnership(chatId, userId);
     return this.msgRepo.getChatMessages(chatId);
-    // const chat = await this.prisma.chatSession.findFirst({
-    //   where: { id: chatId, userId },
-    // });
-    // if (!chat) throw new ForbiddenException('Chat does not belong to user');
-    // return await this.prisma.chatMessage.findMany({
-    //   where: { chatId },
-    //   orderBy: { createdAt: 'asc' },
-    //   include: {
-    //     sources: true,
-    //   },
-    // });
   }
   async getChatDocuments(chatId: string, userId: string) {
     // Ensure chat belongs to user
@@ -499,21 +400,12 @@ export class RagService {
     });
   }
   async deleteChat(chatId: string, userId: string) {
-    // ensure chat belongs to user
-    // const chat = await this.prisma.chatSession.findFirst({
-    //   where: { id: chatId, userId },
-    // });
-
-    // if (!chat) throw new ForbiddenException('Chat does not belong to user');
     await this.chatRepo.validateChatOwnership(chatId, userId);
 
-    // await this.prisma.chatDocument.deleteMany({ where: { chatId } });
     await this.docRepo.unlinkDocumentFromChats(chatId);
-    // await this.prisma.chatMessage.deleteMany({ where: { chatId } });
+
     await this.msgRepo.deleteMessagesByChatId(chatId);
-    // await this.prisma.chatSession.delete({
-    //   where: { id: chatId },
-    // });
+
     await this.chatRepo.deleteChat(chatId);
     return { success: true, message: 'Chat deleted' };
   }
@@ -527,7 +419,6 @@ export class RagService {
   }> {
     try {
       const totalDocuments = await this.vectorStoreService.getDocumentCount();
-      // const totalDocuments = await this.docRepo.getDocumentCount();
       return {
         totalDocuments,
         status: 'operational',
@@ -557,11 +448,5 @@ export class RagService {
   }
   async createChat(userId: string) {
     return this.chatRepo.createChat(userId, 'New Chat');
-    // return this.prisma.chatSession.create({
-    //   data: {
-    //     userId,
-    //     title: 'New Chat',
-    //   },
-    // });
   }
 }
