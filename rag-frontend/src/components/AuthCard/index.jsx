@@ -3,11 +3,18 @@ import React from "react";
 
 const AuthCard = ({ title, children }) => {
   return (
+    // <div
+    //   className="
+    //     glass p-10 rounded-3xl shadow-xl max-w-md w-full
+    //     animate-fadeIn backdrop-blur-xl border border-white/20
+    //   "
+    // >
     <div
       className="
-        glass p-10 rounded-3xl shadow-xl max-w-md w-full 
-        animate-fadeIn backdrop-blur-xl border border-white/20
-      "
+    glass p-6 sm:p-10 rounded-3xl shadow-xl 
+    w-full max-w-sm sm:max-w-md 
+    animate-fadeIn backdrop-blur-xl border border-white/20
+  "
     >
       <h1 className="text-3xl font-bold mb-6 text-center drop-shadow-lg">
         {title}

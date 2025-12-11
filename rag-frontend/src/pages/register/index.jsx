@@ -29,19 +29,21 @@ const RegisterPage = () => {
   };
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center text-white">
+    // <div className="relative min-h-screen flex items-center justify-center text-white">
+    <div className="relative min-h-screen flex items-center justify-center text-white px-4 py-8">
       {/* Animated RAG-themed background */}
       <RagLoginBackground />
 
       {/* Glassmorphic Auth Card */}
       <AuthCard title="Create Account">
         {error && (
-          <div className="bg-red-500/20 text-red-300 border border-red-400/30 p-2 mb-4 rounded text-sm text-center">
+          // <div className="bg-red-500/20 text-red-300 border border-red-400/30 p-2 mb-4 rounded text-sm text-center">
+          <div className="bg-red-500/20 text-red-300 border border-red-400/30 p-2 mb-4 rounded text-xs sm:text-sm text-center">
             {error}
           </div>
         )}
 
-        <form onSubmit={handleSignup} className="space-y-6">
+        <form onSubmit={handleSignup} className="space-y-6 sm:space-y-6">
           <AuthInput
             label="Email"
             type="email"
@@ -58,13 +60,17 @@ const RegisterPage = () => {
 
           <button
             type="submit"
-            className="w-full bg-blue-500/30 hover:bg-blue-500/40 text-white py-2 rounded-lg shadow-md transition cursor-pointer"
+            className="
+          w-full bg-blue-500/30 hover:bg-blue-500/40 
+          text-white py-3 rounded-lg shadow-md transition cursor-pointer
+          text-sm sm:text-base
+        "
           >
             Sign Up
           </button>
         </form>
 
-        <p className="mt-6 text-sm text-center opacity-80">
+        <p className="mt-6 text-xs sm:text-sm text-center opacity-80">
           Already have an account?
           <Link to="/login" className="text-white underline ml-1">
             Login

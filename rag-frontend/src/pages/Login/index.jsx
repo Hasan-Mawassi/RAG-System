@@ -24,7 +24,8 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center text-white">
+    // <div className="relative min-h-screen flex items-center justify-center text-white">
+    <div className="relative min-h-screen flex items-center justify-center text-white px-4 py-8">
       {/* Background Animation */}
       <RagLoginBackground />
 
@@ -52,12 +53,26 @@ const LoginPage = () => {
 
         <button
           onClick={handleLogin}
-          className="w-full bg-blue-500/30 hover:bg-blue-500/40 cursor-pointer text-white py-3 rounded-lg transition shadow-lg"
+          // className="w-full bg-blue-500/30 hover:bg-blue-500/40 cursor-pointer text-white py-3 rounded-lg transition shadow-lg"
+          className="
+    w-full bg-blue-500/30 hover:bg-blue-500/40 
+    cursor-pointer text-white py-3 rounded-lg 
+    transition shadow-lg text-sm sm:text-base
+  "
         >
           Login
         </button>
 
-        <p className="text-center text-sm opacity-80 mt-3">
+        {/* <p className="text-center text-sm opacity-80 mt-3">
+          Don't have an account?
+          <Link
+            to="/signup"
+            className="ml-1 font-semibold underline text-white"
+          >
+            Sign up
+          </Link>
+        </p> */}
+        <p className="text-center text-xs sm:text-sm opacity-80 mt-3">
           Don't have an account?
           <Link
             to="/signup"
