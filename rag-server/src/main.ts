@@ -35,7 +35,7 @@ async function bootstrap() {
   const documentFactory = () => SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, documentFactory);
   const port = process.env.PORT || 3000;
-  await app.listen(port);
+  await app.listen(port, '0.0.0.0');
 
   logger.log(`🚀 RAG System running on: http://localhost:${port}`);
   logger.log(`📄 Upload PDF: POST http://localhost:${port}/api/rag/upload`);

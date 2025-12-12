@@ -1,7 +1,7 @@
 import React, { useState, useRef } from "react";
 import { Upload } from "lucide-react";
 
-const FileUpload = ({ onUpload, isUploading }) => {
+const FileUpload = ({ onUpload, isUploading , isDark }) => {
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef(null);
 
@@ -42,11 +42,19 @@ const FileUpload = ({ onUpload, isUploading }) => {
       onDragOver={handleDrag}
       onDrop={handleDrop}
       onClick={() => fileInputRef.current?.click()}
-      className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-all ${
-        isDragging
-          ? "border-blue-500 bg-blue-50"
-          : "border-gray-300 hover:border-blue-400 hover:bg-gray-50"
-      } ${isUploading ? "opacity-50 pointer-events-none" : ""}`}
+      className={`
+        border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-all
+        ${
+          isDragging
+            ? isDark
+              ? "border-blue-400 bg-blue-900/20"
+              : "border-blue-500 bg-blue-50"
+            : isDark
+            ? "border-gray-700 hover:border-blue-400 hover:bg-gray-800"
+            : "border-gray-300 hover:border-blue-400 hover:bg-gray-50"
+        }
+        ${isUploading ? "opacity-50 pointer-events-none" : ""}
+      `}
     >
       <input
         ref={fileInputRef}
@@ -57,14 +65,35 @@ const FileUpload = ({ onUpload, isUploading }) => {
         disabled={isUploading}
       />
       <Upload
-        className={`w-8 h-8 mx-auto mb-3 ${
-          isDragging ? "text-blue-500" : "text-gray-400"
-        }`}
+        className={`
+          w-8 h-8 mx-auto mb-3
+          ${
+            isDragging
+              ? isDark
+                ? "text-blue-400"
+                : "text-blue-500"
+              : isDark
+              ? "text-gray-400"
+              : "text-gray-400"
+          }
+        `}
       />
-      <p className="text-sm font-medium text-gray-700 mb-1">
+      <p
+        className={`
+          text-sm font-medium mb-1
+          ${isDark ? "text-gray-200" : "text-gray-700"}
+        `}
+      >
         {isUploading ? "Uploading..." : "Drop PDF here or click to upload"}
       </p>
-      <p className="text-xs text-gray-500">PDF files only</p>
+      <p
+        className={`
+          text-xs
+          ${isDark ? "text-gray-400" : "text-gray-500"}
+        `}
+      >
+        PDF files only
+      </p>
     </div>
   );
 };

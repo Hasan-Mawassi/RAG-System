@@ -15,7 +15,7 @@ const SettingsModal = ({
   return (
     <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 p-4">
       <div
-        className={`rounded-lg w-full max-w-md max-h-[90vh] overflow-y-auto ${
+        className={`rounded-lg w-full max-w-md max-h-[90vh] overflow-y-auto custom-scrollbar ${
           isDarkMode
             ? "bg-dark-800 text-white border border-white"
             : "bg-white text-gray-900 "
