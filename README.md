@@ -227,7 +227,7 @@ Users can configure:
 <br><br>
 
 <!-- Ai Powerd App -->
-<img src="./readme/title8.svg"/>
+<!-- <img src="./readme/title8.svg"/>
 
 ### LangChain
 
@@ -239,10 +239,10 @@ Users can configure:
 | ------------------------------------------ | ----------------------------------- |
 | ![Landing](./readme/demo/reportPrompt.png) | ![fsdaf](./readme/demo/getDate.png) |
 
-<br><br>
+<br><br> -->
 
 <!-- Deployment -->
-<img src="./readme/title7.svg"/>
+<!-- <img src="./readme/title7.svg"/>
 
 ### CI/CD Magic: Deploying Smarter, Not Harder
 
@@ -274,6 +274,6 @@ Each push to the corresponding branch triggers the appropriate workflow, enablin
 
 | Patient Prescription                        |
 | ------------------------------------------- |
-| ![fsdaf](./readme/demo/getprescription.png) |
+| ![fsdaf](./readme/demo/getprescription.png) | -->
 
 <br><br>

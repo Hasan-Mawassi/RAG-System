@@ -96,13 +96,7 @@ const ChatInput = ({ onSend, isLoading }) => {
           `}
         >
           {isLoading ? (
-            <Loader2
-              className={`w-5 h-5 animate-spin${
-                isDarkMode
-                  ? "bg-blue-700 hover:bg-blue-600 text-white"
-                  : "bg-blue-200 hover:bg-blue-300 text-blue-800"
-              }`}
-            />
+            <Loader2 className={`w-5 h-5 animate-spin `} />
           ) : (
             <Send
               className={`w-5 h-5${
