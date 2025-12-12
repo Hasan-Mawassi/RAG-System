@@ -166,7 +166,7 @@ const ChatPage = () => {
         </div>
 
         <div
-          className={`flex-1 overflow-y-auto p-4 md:p-6 ${
+          className={`flex-1 overflow-y-auto custom-scrollbar p-4 md:p-6 ${
             isDarkMode ? "bg-dark-900" : "bg-white"
           }`}
         >
@@ -211,6 +211,7 @@ const ChatPage = () => {
                   message={msg}
                   isUser={msg.isUser}
                   showSources={localSettings.showSources}
+                  isDark={isDarkMode}
                 />
               ))}
               {isQuerying && <LoadingMessage />}

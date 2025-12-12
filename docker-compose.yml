@@ -27,7 +27,7 @@ services:
       retries: 3
 
     command: >
-      sh -c "npx prisma migrate deploy && node dist/main.js"
+      sh -c "npx prisma migrate deploy && node dist/src/main.js"
       
     ports:
       - "5000:5000"
@@ -63,14 +63,13 @@ services:
       - "11434:11434"
     volumes:
       - ollama-data:/root/.ollama
+    entrypoint: ["/bin/sh", "-c"]
     command: >
-      bash -c "
-      ollama serve &
-      sleep 5 &&
+      "ollama serve & 
+      sleep 5 && 
       ollama pull qwen2:1.5b &&
       ollama pull nomic-embed-text &&
-      tail -f /dev/null
-      "
+      wait"
 
 volumes:
   pgdata:

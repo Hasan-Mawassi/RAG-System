@@ -33,7 +33,7 @@ const Sidebar = ({
           transition-all duration-300
           ${
             isDarkMode
-              ? "bg-dark-800 border-dark-600"
+              ? "bg-dark-800 border-dark-600 backdrop-blur-lg bg-white/10"
               : "bg-white border-gray-200"
           }
         `}
@@ -41,7 +41,7 @@ const Sidebar = ({
         {/* ---------- HEADER ---------- */}
         <div
           className={`p-4 md:p-6 border-b ${
-            isDarkMode ? "border-dark-600" : "border-gray-200"
+            isDarkMode ? "border-dark-400" : "border-gray-200"
           }`}
         >
           <h2
@@ -53,7 +53,7 @@ const Sidebar = ({
           </h2>
           <p
             className={`text-sm ${
-              isDarkMode ? "text-dark-300" : "text-gray-500"
+              isDarkMode ? "text-dark-400" : "text-gray-500"
             }`}
           >
             Your conversations and documents
@@ -61,7 +61,7 @@ const Sidebar = ({
         </div>
 
         {/* ---------- SCROLLABLE CONTENT ---------- */}
-        <div className="flex-1 overflow-y-auto p-4">
+        <div className="flex-1 overflow-y-auto custom-scrollbar p-4">
           {/* NEW CHAT BUTTON */}
           <button
             onClick={onNewChat}
@@ -76,6 +76,7 @@ const Sidebar = ({
             activeChatId={activeChatId}
             onOpenChat={onOpenChat}
             onDeleteChat={onDeleteChat}
+            isDark={isDarkMode}
           />
 
           {/* DOCUMENT SECTION */}
@@ -92,6 +93,7 @@ const Sidebar = ({
               <FileUpload
                 onUpload={(file) => uploadDocument(file, activeChatId)}
                 isUploading={isUploading}
+                isDark={isDarkMode}
               />
 
               <div className="my-4 border-t border-gray-300"></div>
@@ -100,6 +102,7 @@ const Sidebar = ({
                 documents={documents}
                 onDelete={deleteDocument}
                 isLoading={isUploading}
+                isDark={isDarkMode}
               />
             </div>
           ) : (
