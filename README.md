@@ -196,7 +196,7 @@ Users can configure:
 
 |Chats Screen Stream response                                                        |
 | ----------------------------------------------------------------------  |
-| <img src="./readme/demo/chatStreem.gif" width="600" height="250" /> |
+| <img src="./readme/demo/chatstream.gif"/> |
 
 | Croq response (Cloud model)                                                               | 
 ------------------------------------------------------------------------ |
