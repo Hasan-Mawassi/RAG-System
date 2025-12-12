@@ -136,6 +136,10 @@ Users can configure:
 ---
 
 ## 🚀 Running with Docker
+- Docker runs the entire RAG stack (frontend, backend, DB, vector store, LLM) in isolated containers.
+- Ensures consistent environments across all machines with no manual setup required.
+- Docker Compose manages networking, service orchestration, and persistent storage volumes.
+- One command builds and starts everything, making development and deployment fast and reliable.
 <br><br>
 
 <!-- System Design -->
@@ -171,12 +175,10 @@ Users can configure:
 
 - **Your Knowledge, Fully Yours:**  
   Chats, PDFs, and message history are stored securely in PostgreSQL. Data stays organized, persistent, and always ready for where you left off.
-  
   <br><br>
-
-| Project Features  
+<!-- | Project Features  
 | ----------------------------------------- |
-| <div align="center"><img src="./readme/demo/SmartClinic-highlights1.png"/></div> |
+| <div align="center"><img src="./readme/demo/SmartClinic-highlights1.png"/></div> | -->
 <br><br>
 
 <!-- Demo -->
@@ -203,77 +205,100 @@ Users can configure:
 | ![Landing](./readme/demo/chatscreen.gif) | 
 
 
+| Chat Page                       | Setting                       |  
+| ---------------------------------------- | ---------------------------------------- | 
+| <img src="./readme/demo/chatscreen.png"  /> | <img src="./readme/demo/web-setting.png"/>
+
 | Chat Page Dark Mode                       | Setting Dark Mode                          |  
 | ---------------------------------------- | ---------------------------------------- | 
 | <img src="./readme/demo/chatdarkmodeweb.png"  /> | <img src="./readme/demo/settingwebdark.png"/> 
 
-<!-- Development & Testing -->
+| Login Page                      | SignUp Page                   |  
+| ---------------------------------------- | ---------------------------------------- | 
+| <img src="./readme/demo/web-login.png"  /> | <img src="./readme/demo/web-singup.png"/> 
+
+<!-- API Documentation -->
 <img src="./readme/title6.svg"/>
 
-### Development & Testing
+### API Documentation (Swagger)
 
-| Services                                  | Validation                             |
+| Swagger                                  | Swagger                              |
 | ----------------------------------------- | -------------------------------------- |
-| ![Landing](./readme/demo/controllers.png) | ![fsdaf](./readme/demo/validation.png) |
+| ![Landing](./readme/demo/swagger.png) | ![fsdaf](./readme/demo/swagger1.png) |
 
-| Chatbot Feature test                       | Create Patient Vital Unit test              |
+| Swagger                       | Swagger               |
 | ------------------------------------------ | ------------------------------------------- |
-| ![Landing](./readme/demo/Chatbot-test.png) | ![fsdaf](./readme/demo/createVitaltest.png) |
-
-| Testing                            |
-| ---------------------------------- |
-| ![Landing](./readme/demo/test.png) |
+| ![Landing](./readme/demo/swagger2.png) | ![fsdaf](./readme/demo/swagger3.png) |
 
 <br><br>
+#  Running Project with Docker
 
-<!-- Ai Powerd App -->
-<!-- <img src="./readme/title8.svg"/>
+This project includes a fully Dockerized environment covering the **frontend**, **backend**, **PostgreSQL**, **ChromaDB**, and **Ollama** allowing you to run the entire system with one command.
 
-### LangChain
+## 📦 1. Clone the Repository
 
-| LangChain Function Calling                   | LangChain Tool Creation          |
-| -------------------------------------------- | -------------------------------- |
-| ![Landing](./readme/demo/handleChatFunc.png) | ![fsdaf](./readme/demo/tool.png) |
+```bash
+git clone https://github.com/Hasan-Mawassi/RAG-System.git
 
-| Report generator prompt                    | Extract Date from message           |
-| ------------------------------------------ | ----------------------------------- |
-| ![Landing](./readme/demo/reportPrompt.png) | ![fsdaf](./readme/demo/getDate.png) |
+```
+## ⚙️ 2. Configure Environment Variables
 
-<br><br> -->
+Copy the example environment file in rag-server and update it with your configuration:
 
-<!-- Deployment -->
-<!-- <img src="./readme/title7.svg"/>
+```bash
+cp .env.example .env
+```
+Then edit the `.env` file and fill in the necessary values.  
+This file includes configuration settings for:
 
-### CI/CD Magic: Deploying Smarter, Not Harder
+- **Database connection (PostgreSQL)**  
+- **API keys for any external services** (if applicable)  
+- **Model configurations** (local models or cloud providers)  
+- **Port mappings and service URLs** for backend, frontend, ChromaDB, and Ollama 
 
-- The project is containerized using **Docker** and managed through **Docker Compose** for consistent multi-service environments across development, staging, and production.
+## ▶️ 3. Build & Start All Services
 
-CI/CD is handled via **GitHub Actions**, with custom workflows set up to automatically build, test, and deploy the application to two separate **AWS EC2 instances**:
+Start the full system using Docker Compose:
 
-- **Staging Server**: For testing new features before production release.
-- **Production Server**: For live deployment, ensuring high availability and performance.
+```bash
+docker-compose up --build
+```
+This will:
 
-Each push to the corresponding branch triggers the appropriate workflow, enabling **seamless and automated deployment** with minimal manual intervention.
+- Build the **NestJS backend**
+- Build the **React frontend**
+- Start **PostgreSQL** with persistent volumes
+- Start **ChromaDB** for vector embeddings
+- Start **Ollama** and load local models (`qwen2:1.5b`, `nomic-embed-text`)
 
--Production Server http://13.37.226.34/ 
+## 🌐 4. Access the Application
 
--Staging Server http://15.237.74.109/
- - Use email: smartclinic@gmail.com  pass: 123123  to view dashboard data
+| Service        | URL                          |
+|----------------|-------------------------------|
+| Frontend (UI)  | http://localhost:3000         |
+| Backend API    | http://localhost:5000         |
+| ChromaDB       | http://localhost:8000         |
+| Ollama API     | http://localhost:11434        |
 
-| Smart Clinic Pipline                        |
-| ------------------------------------------- |
-| ![Landing](./readme/demo/CICD-pipeline.png) |
+All services communicate internally through Docker networking.
 
-| Chatbot response |
-| ---------------------------------------
-| ![Landing](./readme/demo/chatbotres.png) |
 
-| Doctor Graphs data response              |
-| ---------------------------------------- |
-| ![fsdaf](./readme/demo/getgraphdata.png) |
+## 🗂️ Docker Volumes
 
-| Patient Prescription                        |
-| ------------------------------------------- |
-| ![fsdaf](./readme/demo/getprescription.png) | -->
+| Volume             | Purpose                           |
+|-------------------|-----------------------------------|
+| `rag_pgdata`       | PostgreSQL database files         |
+| `rag_chroma-data`  | ChromaDB vector embeddings        |
+| `rag_ollama-data`  | Local LLM models for Ollama       |
 
-<br><br>
+---
+
+## ⚙️ Ports Exposed
+
+| Container   | Port  | Description                  |
+|-------------|-------|------------------------------|
+| Frontend    | 3000  | Web UI                       |
+| Backend     | 5000  | REST API + SSE               |
+| PostgreSQL  | 5432  | Database                     |
+| ChromaDB    | 8000  | Embedding & search API       |
+| Ollama      | 11434 | Local LLM inference          |

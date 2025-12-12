@@ -4,7 +4,7 @@ import { useTheme } from "../../contexts/ThemeContext.jsx";
 
 const MODEL_OPTIONS = {
   ollama: ["qwen2:1.5b"],
-  groq: ["llama-3.1-8b-instant", "llama-3.1-70b-versatile", "mixtral-8x7b"],
+  groq: ["llama-3.1-8b-instant"],
 };
 
 export default function ModelSelector() {
