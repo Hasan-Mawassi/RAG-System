@@ -22,17 +22,15 @@ jobs:
         run: |
           ssh -A -o StrictHostKeyChecking=no ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }} 'bash -s' <<'ENDSSH'
             set -e
-            # Go to project folder or clone if missing
-            if [ ! -d ~/rag-project ]; then
-              git clone git@github.com:Hasan-Mawassi/RAG-System.git ~/rag-project
-            else
-              cd ~/rag-project
-              git fetch --all
-              git reset --hard origin/main
-              cd -
+            REPO_PATH="$HOME/rag-project"
+
+            # Clone if it doesn't exist
+            if [ ! -d "$REPO_PATH" ]; then
+              git clone git@github.com:Hasan-Mawassi/RAG-System.git "$REPO_PATH"
             fi
 
-            cd ~/rag-project || exit 1
+            # Always go to repo directory
+            cd "$REPO_PATH"
 
             # Pull latest code
             git fetch --all
