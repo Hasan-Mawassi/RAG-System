@@ -20,7 +20,7 @@ jobs:
 
       - name: Deploy to VM
         run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }} 'bash -s' <<'ENDSSH'
+          ssh -A -o StrictHostKeyChecking=no ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }} 'bash -s' <<'ENDSSH'
             set -e
             # Go to project folder or clone if missing
             if [ ! -d ~/rag-project ]; then
