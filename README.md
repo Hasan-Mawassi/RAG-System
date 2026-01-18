@@ -161,7 +161,7 @@ Users can configure:
 - **Chat With Your PDFs, Instantly:**  
   No more scrolling through long documents or searching manually. Upload PDFs, ask questions, and get precise answers backed by real citations. It’s like having an AI research assistant that understands your documents better than you do.
 
-- **Local or Cloud AI—Your Choice:**  
+- **Local or Cloud AI Your Choice:**  
   Enjoy the privacy and speed of a local model through Ollama, or switch to Groq’s lightning-fast cloud models for deeper reasoning. One system, two powerful engines, fully in your control.
 
 - **Smart Retrieval, Better Accuracy:**  
@@ -239,6 +239,7 @@ This project includes a fully Dockerized environment covering the **frontend**, 
 
 ```bash
 git clone https://github.com/Hasan-Mawassi/RAG-System.git
+cd rag-system 
 
 ```
 ## ⚙️ 2. Configure Environment Variables
