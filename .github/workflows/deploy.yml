@@ -20,17 +20,25 @@ jobs:
 
       - name: Deploy to VM
         run: |
-          ssh -A -o StrictHostKeyChecking=no ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }} 'bash -s' <<'ENDSSH'
-            set -e
-            REPO_PATH="$HOME/rag-project"
+          ssh -A -o StrictHostKeyChecking=no ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }} bash << 'ENDSSH'
+            set -ex
+            export HOME=/home/${{ secrets.VM_USER }}
+            REPO_PATH="/home/${{ secrets.VM_USER }}/rag-project"
 
-            # Clone if it doesn't exist
-            if [ ! -d "$REPO_PATH" ]; then
-              git clone git@github.com:Hasan-Mawassi/RAG-System.git "$REPO_PATH"
+            # Remove existing repo and clone fresh
+            if [ -d "$REPO_PATH" ]; then
+              rm -rf "$REPO_PATH"
             fi
 
-            # Always go to repo directory
-            cd "$REPO_PATH"
+            # Clone repository
+            mkdir -p "$REPO_PATH"
+            git clone git@github.com:Hasan-Mawassi/RAG-System.git "$REPO_PATH"
+
+            # Navigate to repo
+            cd "$REPO_PATH" || exit 1
+
+            # Verify we're in a git repo
+            git status
 
             # Pull latest code
             git fetch --all
