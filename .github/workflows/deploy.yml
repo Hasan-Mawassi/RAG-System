@@ -21,7 +21,7 @@ jobs:
     - name: Deploy to VM
       run: |
         ssh -o StrictHostKeyChecking=no ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }} "
-          cd ~/rag-project || git clone git@github.com:<USERNAME>/<REPO>.git ~/rag-project
+          cd ~/rag-project || git clone https://github.com/Hasan-Mawassi/RAG-System.git ~/rag-project
           cd ~/rag-project
           git reset --hard
           git pull origin main
