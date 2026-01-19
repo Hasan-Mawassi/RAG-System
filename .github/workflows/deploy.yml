@@ -87,7 +87,10 @@ jobs:
 
       - name: Build and push frontend image
         run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/rag-frontend:latest -f docker/frontend/Dockerfile ./rag-frontend
+          docker build \
+            --build-arg VITE_BASE_URL="http://20.174.18.166:5000" \
+            -t ${{ secrets.DOCKER_USERNAME }}/rag-frontend:latest \
+            -f docker/frontend/Dockerfile ./rag-frontend
           docker push ${{ secrets.DOCKER_USERNAME }}/rag-frontend:latest
 
   deploy-to-azure:
