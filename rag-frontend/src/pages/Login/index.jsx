@@ -38,7 +38,7 @@ const LoginPage = () => {
         )}
 
         <AuthInput
-          label="Email"
+          label="Emailll"
           type="email"
           value={email}
           onChange={setEmail}
