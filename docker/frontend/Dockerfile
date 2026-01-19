@@ -3,6 +3,10 @@ FROM node:22-slim AS builder
 
 WORKDIR /app
 
+# Accept env variables as build arguments
+ARG VITE_BASE_URL
+ENV VITE_BASE_URL=$VITE_BASE_URL
+
 # Copy package.json and package-lock.json and install dependencies
 COPY package*.json ./
 RUN npm install
