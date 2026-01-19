@@ -2,7 +2,9 @@ version: "3.9"
 
 services:
   frontend:
-    image: hasanmawasi/rag-frontend:latest
+    build:
+      context: ./rag-frontend
+      dockerfile: ../docker/frontend/Dockerfile
     restart: always
     ports:
       - "80:80"
@@ -10,7 +12,9 @@ services:
       - backend
 
   backend:
-    image: hasanmawasi/rag-backend:latest
+    build:
+      context: ./rag-server
+      dockerfile: ../docker/backend/Dockerfile
     restart: always
 
     env_file:
