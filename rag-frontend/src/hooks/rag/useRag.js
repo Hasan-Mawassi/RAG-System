@@ -186,7 +186,7 @@ export const useRag = () => {
           modelName: settings.modelName,
         });
 
-        return `http://localhost:5000/api/rag/stream?${params}`;
+        return `${import.meta.env.VITE_BASE_URL}/api/rag/stream?${params}`;
       };
 
       // SSE with Authorization
