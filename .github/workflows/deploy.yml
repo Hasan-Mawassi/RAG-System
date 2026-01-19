@@ -110,7 +110,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd ~/rag-project
-            git pull
+            git pull origin main
             # Pull latest images
             docker pull ${{ secrets.DOCKER_USERNAME }}/rag-backend:latest
             docker pull ${{ secrets.DOCKER_USERNAME }}/rag-frontend:latest
