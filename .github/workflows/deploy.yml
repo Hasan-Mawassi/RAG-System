@@ -82,13 +82,13 @@ jobs:
 
       - name: Build and push backend image
         run: |
-          docker build -t hasanmawasi/rag-backend:latest -f rag-server/Dockerfile ./rag-server
-          docker push hasanmawasi/rag-backend:latest
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/rag-backend:latest -f docker/backend/Dockerfile ./rag-server
+          docker push ${{ secrets.DOCKER_USERNAME }}/rag-backend:latest
 
       - name: Build and push frontend image
         run: |
-          docker build -t hasanmawasi/rag-frontend:latest -f rag-frontend/Dockerfile ./rag-frontend
-          docker push hasanmawasi/rag-frontend:latest
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/rag-frontend:latest -f docker/frontend/Dockerfile ./rag-frontend
+          docker push ${{ secrets.DOCKER_USERNAME }}/rag-frontend:latest
 
   deploy-to-azure:
     name: Deploy to Azure VM
@@ -108,8 +108,8 @@ jobs:
           script: |
             cd /home/azureuser/project
             # Pull the latest images
-            docker pull hasanmawasi/rag-backend:latest
-            docker pull hasanmawasi/rag-frontend:latest
+            docker pull ${{ secrets.DOCKER_USERNAME }}/rag-backend:latest
+            docker pull ${{ secrets.DOCKER_USERNAME }}/rag-frontend:latest
             # Stop and remove existing containers
             docker compose down
             # Start new containers
