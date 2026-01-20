@@ -2,7 +2,9 @@ import axios from "axios";
 
 // Create axios instance
 const api = axios.create({
-  baseURL: `${import.meta.env.VITE_BASE_URL}/api`,
+  baseURL: import.meta.env.VITE_BASE_URL
+    ? `${import.meta.env.VITE_BASE_URL}/api`
+    : "http://localhost:5050/api",
   withCredentials: true, // VERY important for cookie auth
 });
 let isRefreshing = false;
