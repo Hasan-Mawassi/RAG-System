@@ -11,6 +11,26 @@ export class ChatRepository {
     });
   }
 
+  getChatById(chatId: string) {
+    return this.prisma.chatSession.findUnique({
+      where: { id: chatId },
+    });
+  }
+
+  getMessages(chatId: string) {
+    return this.prisma.chatMessage.findMany({
+      where: { chatId },
+      orderBy: { createdAt: 'asc' },
+    });
+  }
+
+  updateChat(chatId: string, data: any) {
+    return this.prisma.chatSession.update({
+      where: { id: chatId },
+      data,
+    });
+  }
+
   findUserChat(chatId: string, userId: string) {
     return this.prisma.chatSession.findFirst({
       where: { id: chatId, userId },

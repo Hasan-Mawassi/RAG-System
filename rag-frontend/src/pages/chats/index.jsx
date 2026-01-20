@@ -13,7 +13,6 @@ import SettingsModal from "../../components/SettingModal/index.jsx";
 import { ChatList } from "../../components/Chatlist/index.jsx";
 import Sidebar from "../../components/Sidebar/index.jsx";
 
-
 const ChatPage = () => {
   const {
     documents,
@@ -29,13 +28,13 @@ const ChatPage = () => {
     activeChatId,
     openChat,
     deleteDocument,
-    deleteChat, 
-  
+    deleteChat,
+    chatDocumentCounts,
   } = useRag();
-//  uploadDocument,
-//     deleteDocument,
-//     sendMessage,
-//     setError,
+  //  uploadDocument,
+  //     deleteDocument,
+  //     sendMessage,
+  //     setError,
   const { isDarkMode, toggleDarkMode } = useTheme();
   const { settings, updateSettings } = useSettings();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -44,10 +43,10 @@ const ChatPage = () => {
   const messagesEndRef = useRef(null);
 
   const scrollToBottom = () => {
-      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-    };
-    
-    // const [activeTab, setActiveTab] = useState("chats");
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  // const [activeTab, setActiveTab] = useState("chats");
   useEffect(() => {
     if (localSettings.autoScroll) {
       scrollToBottom();
@@ -89,6 +88,7 @@ const ChatPage = () => {
         uploadDocument={uploadDocument}
         deleteDocument={deleteDocument}
         isUploading={isUploading}
+        chatDocumentCounts={chatDocumentCounts}
       />
 
       {/* Sidebar toggle button */}

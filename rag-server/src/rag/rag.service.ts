@@ -7,6 +7,7 @@ import { PrismaService } from 'prisma/prisma.service';
 import { ChatRepository } from './repositories/chat.repository';
 import { DocumentRepository } from './repositories/document.repository';
 import { MessageRepository } from './repositories/messages.repository';
+import { DocumentHandlerRegistry } from './handlers/document-handler.registry';
 export interface UploadResponse {
   success: boolean;
   documentId: string;
@@ -40,17 +41,21 @@ export class RagService {
     private docRepo: DocumentRepository,
     private msgRepo: MessageRepository,
     private embeddingService: EmbeddingService,
+    private documentHandlerRegistry: DocumentHandlerRegistry,
   ) {}
 
   /**
-   * Complete PDF upload and processing pipeline
-   * 1. Validate PDF
-   * 2. Extract text
-   * 3. Split into chunks
-   * 4. Generate embeddings
-   * 5. Store in vector database
+   * Complete document upload and processing pipeline
+   * Now uses DocumentHandlerRegistry for extensible document type support
+   * 1. Get appropriate handler from registry based on MIME type
+   * 2. Validate document format
+   * 3. Extract text using handler
+   * 4. Split into chunks
+   * 5. Save chunk count to document
+   * 6. Generate embeddings and store in vector database
+   * 7. Update chat document count
    *
-   * @param file - Uploaded PDF file
+   * @param file - Uploaded document file
    * @returns Upload result with document ID
    */
   async uploadAndProcessPdf(
@@ -60,15 +65,14 @@ export class RagService {
   ): Promise<UploadResponse> {
     const startTime = Date.now();
     this.logger.log(
-      `Starting PDF upload: ${file.originalname} (${file.size} bytes)`,
+      `Starting document upload: ${file.originalname} (${file.size} bytes, type: ${file.mimetype})`,
     );
 
     try {
-      // Step 1: Validate the PDF file
-      if (!this.pdfService.validatePdf(file.buffer)) {
-        throw new Error('Invalid PDF file format');
-      }
-      // 2. Save document row
+      // Step 1: Get handler from registry based on MIME type
+      const handler = this.documentHandlerRegistry.getHandler(file.mimetype);
+
+      // Step 2: Save document record
       const document = await this.docRepo.createDocument({
         userId,
         filename: file.originalname,
@@ -77,40 +81,51 @@ export class RagService {
         size: file.size,
       });
 
-      // Step 3: Process PDF (extract text and chunk)
-      const chunks = await this.pdfService.processPdf(
-        file.buffer,
-        file.originalname,
-        document.id,
-      );
-      // Step 4: Add chunks to vector store (automatically embeds and stores)
+      // Step 3: Process document using handler (extract, validate, chunk)
+      const chunks = await handler.process(file, document.id);
+
+      // Step 4: Update document with chunk count
+      await this.docRepo.updateDocument(document.id, {
+        chunkCount: chunks.length,
+      });
+      this.logger.log(`✓ Document chunk count saved: ${chunks.length}`);
+
+      // Step 5: Add chunks to vector store (automatically embeds and stores)
       await this.vectorStoreService.addDocuments(
         chunks,
         userId,
         document.id,
         chatId,
       );
+
+      // Step 6: Link document to chat and update document count
       if (chatId) {
         await this.docRepo.linkDocumentToChat(chatId, document.id);
+        // Increment document count in chat
+        await this.chatRepo.updateChat(chatId, {
+          documentCount: { increment: 1 },
+        });
+        this.logger.log(`✓ Incremented document count for chat ${chatId}`);
       }
+
       const processingTime = Date.now() - startTime;
       this.logger.log(
-        `PDF processing completed in ${processingTime}ms: ${chunks.length} chunks stored`,
+        `✓ Document processed in ${processingTime}ms: ${chunks.length} chunks stored`,
       );
 
       return {
         success: true,
         documentId: document.id,
-        message: `PDF processed successfully. ${chunks.length} chunks created and stored.`,
+        message: `Document processed successfully. ${chunks.length} chunks created and stored.`,
         chunksProcessed: chunks.length,
         chatId,
       };
     } catch (error) {
-      this.logger.error('Error processing PDF:', error);
+      this.logger.error('Error processing document:', error);
       return {
         success: false,
         documentId: '',
-        message: `Failed to process PDF: ${error.message}`,
+        message: `Failed to process document: ${error.message}`,
         chunksProcessed: 0,
         chatId,
       };
@@ -392,12 +407,26 @@ export class RagService {
 
     if (!chat) throw new ForbiddenException('Chat does not belong to user');
 
-    return await this.prisma.chatDocument.findMany({
+    const chatDocuments = await this.prisma.chatDocument.findMany({
       where: { chatId },
       include: {
-        document: true, // returns filename, size, etc.
+        document: true, // returns filename, size, chunkCount, etc.
       },
     });
+
+    // Return structured response with documentCount and documents array
+    return {
+      chatId,
+      documentCount: chat.documentCount,
+      documents: chatDocuments.map((cd) => ({
+        id: cd.document.id,
+        filename: cd.document.filename,
+        chunkCount: cd.document.chunkCount,
+        mimeType: cd.document.mimeType,
+        size: cd.document.size,
+        createdAt: cd.document.createdAt,
+      })),
+    };
   }
   async deleteChat(chatId: string, userId: string) {
     await this.chatRepo.validateChatOwnership(chatId, userId);

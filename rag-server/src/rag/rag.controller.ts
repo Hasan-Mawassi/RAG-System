@@ -26,6 +26,8 @@ import { ChatDto } from './dto/chat.dto';
 import { MessageDto } from './dto/message.dto';
 import { StatsDto } from './dto/stats.dto';
 import { StreamEventDto } from './dto/stream-event.dto';
+import { DocumentRepository } from './repositories/document.repository';
+import { ChatRepository } from './repositories/chat.repository';
 
 import {
   ApiBearerAuth,
@@ -46,7 +48,11 @@ import {
 @ApiBearerAuth()
 @Controller('api/rag')
 export class RagController {
-  constructor(private readonly ragService: RagService) {}
+  constructor(
+    private readonly ragService: RagService,
+    private readonly docRepo: DocumentRepository,
+    private readonly chatRepo: ChatRepository,
+  ) {}
 
   /**
    * POST /api/rag/upload
@@ -93,9 +99,22 @@ export class RagController {
         fileSize: 10 * 1024 * 1024, // 10MB limit
       },
       fileFilter: (req, file, cb) => {
-        if (file.mimetype !== 'application/pdf') {
+        // Supported MIME types - matches backend handlers
+        const supportedMimeTypes = [
+          'application/pdf', // PDF
+          'application/vnd.openxmlformats-officedocument.wordprocessingml.document', // DOCX
+          'text/plain', // TXT
+          'text/csv', // CSV
+          'application/json', // JSON
+          'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // XLSX
+        ];
+
+        if (!supportedMimeTypes.includes(file.mimetype)) {
           cb(
-            new HttpException('Only PDF files allowed', HttpStatus.BAD_REQUEST),
+            new HttpException(
+              `Unsupported file type. Supported types: PDF, DOCX, TXT, CSV, JSON, XLSX`,
+              HttpStatus.BAD_REQUEST,
+            ),
             false,
           );
         } else {
@@ -414,6 +433,7 @@ export class RagController {
   async createChat(@Req() req) {
     return await this.ragService.createChat(req.user.id);
   }
+
   /**
    * GET /api/rag/health
    * Simple health check

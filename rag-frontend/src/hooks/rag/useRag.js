@@ -2,7 +2,6 @@ import { useState, useEffect, useRef } from "react";
 import { ragService } from "../../services/rag/ragService";
 import { useSettings } from "../../contexts/SettingsContext";
 
-
 export const useRag = () => {
   const [chats, setChats] = useState([]);
   const [activeChatId, setActiveChatId] = useState(null);
@@ -11,6 +10,7 @@ export const useRag = () => {
   const [isUploading, setIsUploading] = useState(false);
   const [isQuerying, setIsQuerying] = useState(false);
   const [error, setError] = useState("");
+  const [chatDocumentCounts, setChatDocumentCounts] = useState({}); // Track doc count per chat
 
   const { settings } = useSettings();
 
@@ -48,21 +48,29 @@ export const useRag = () => {
   const openChat = async (chatId) => {
     setActiveChatId(chatId);
 
-    const [msgs, docs] = await Promise.all([
+    const [msgs, docsResponse] = await Promise.all([
       ragService.getMessages(chatId),
       ragService.getChatDocuments(chatId),
     ]);
 
     if (!msgs.error) setMessages(msgs);
 
-    if (!docs.error) {
+    if (!docsResponse.error && docsResponse.documents) {
+      // Backend now returns: { chatId, documentCount, documents: [...] }
       setDocuments(
-        docs.map((d) => ({
-          documentId: d.document.id,
-          filename: d.document.filename,
-          chunksProcessed: d.document.chunksProcessed ?? 0,
-        }))
+        docsResponse.documents.map((d) => ({
+          documentId: d.id,
+          filename: d.filename,
+          chunksProcessed: d.chunkCount, // Persistent chunk count from DB
+          mimeType: d.mimeType,
+          size: d.size,
+        })),
       );
+      // Store the document count for this chat
+      setChatDocumentCounts((prev) => ({
+        ...prev,
+        [chatId]: docsResponse.documentCount,
+      }));
     }
   };
 
@@ -98,6 +106,12 @@ export const useRag = () => {
         chunksProcessed: res.chunksProcessed,
       },
     ]);
+
+    // Update the document count for the active chat
+    setChatDocumentCounts((prev) => ({
+      ...prev,
+      [activeChatId]: (prev[activeChatId] || 0) + 1,
+    }));
   };
 
   /* --------------------------
@@ -108,6 +122,12 @@ export const useRag = () => {
     if (res.error) return setError(res.message);
 
     setDocuments((prev) => prev.filter((d) => d.documentId !== docId));
+
+    // Decrement document count for active chat
+    setChatDocumentCounts((prev) => ({
+      ...prev,
+      [activeChatId]: Math.max(0, (prev[activeChatId] || 0) - 1),
+    }));
   };
 
   /* --------------------------
@@ -138,8 +158,7 @@ export const useRag = () => {
         });
         //  If the backend updated the chat title
         if (res.updatedTitle) {
-         animateChatTitle(res.updatedTitle, activeChatId, setChats);
-       ;
+          animateChatTitle(res.updatedTitle, activeChatId, setChats);
         }
         setIsQuerying(false);
 
@@ -190,9 +209,9 @@ export const useRag = () => {
       };
 
       // SSE with Authorization
-     const eventSource = new EventSource(buildStreamUrl(question, settings), {
-       withCredentials: true,
-     });
+      const eventSource = new EventSource(buildStreamUrl(question, settings), {
+        withCredentials: true,
+      });
 
       let accumulated = "";
 
@@ -233,7 +252,6 @@ export const useRag = () => {
 
         if (data.data.updatedTitle) {
           animateChatTitle(data.data.updatedTitle, activeChatId, setChats);
-          
         }
         // --- stream error ---
         if (data.type === "error") {
@@ -269,45 +287,46 @@ export const useRag = () => {
       setMessages([]);
     }
   };
-const animateChatTitle = (fullTitle, activeChatId, setChats) => {
-  let index = 0;
+  const animateChatTitle = (fullTitle, activeChatId, setChats) => {
+    let index = 0;
 
-  // Start with an empty title
-  setChats((prev) =>
-    prev.map((c) =>
-      c.id === activeChatId ? { ...c, title: "", animatingTitle: true } : c
-    )
-  );
-
-  const interval = setInterval(() => {
-    index++;
-    const partial = fullTitle.substring(0, index);
-
+    // Start with an empty title
     setChats((prev) =>
       prev.map((c) =>
-        c.id === activeChatId
-          ? { ...c, title: partial, animatingTitle: true }
-          : c
-      )
+        c.id === activeChatId ? { ...c, title: "", animatingTitle: true } : c,
+      ),
     );
 
-    if (index === fullTitle.length) {
-      clearInterval(interval);
+    const interval = setInterval(() => {
+      index++;
+      const partial = fullTitle.substring(0, index);
 
-      // Remove animation flag
       setChats((prev) =>
         prev.map((c) =>
-          c.id === activeChatId ? { ...c, animatingTitle: false } : c
-        )
+          c.id === activeChatId
+            ? { ...c, title: partial, animatingTitle: true }
+            : c,
+        ),
       );
-    }
-  }, 35); // typing speed (ms per letter)
-};
+
+      if (index === fullTitle.length) {
+        clearInterval(interval);
+
+        // Remove animation flag
+        setChats((prev) =>
+          prev.map((c) =>
+            c.id === activeChatId ? { ...c, animatingTitle: false } : c,
+          ),
+        );
+      }
+    }, 35); // typing speed (ms per letter)
+  };
   return {
     chats,
     activeChatId,
     openChat,
     createNewChat,
+    chatDocumentCounts, // Export document counts per chat
 
     documents,
     uploadDocument,

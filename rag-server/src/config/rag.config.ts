@@ -58,7 +58,7 @@ export class RagConfigService {
     return this.configService.get<string>('GROQ_API_KEY', '');
   }
   get groqModel(): string {
-    return this.configService.get<string>('GROQ_MODEL', 'llama3-8b');
+    return this.configService.get<string>('GROQ_MODEL', 'llama-3.1-8b-instant');
   }
 }
 

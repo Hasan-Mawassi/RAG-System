@@ -265,27 +265,57 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Document } from '@langchain/core/documents';
 import { RagConfigService } from '../../config/rag.config';
-import { LlmFactory } from '../providers/llm.factory';
-import { LlmProvider } from '../providers/llm-provider.interface';
+import { LlmProviderRegistry } from '../registries/llm-provider-registry';
 
+/**
+ * LLM Service
+ *
+ * Orchestrates interactions with LLM providers through the registry pattern
+ * Handles:
+ * - Answer generation with RAG context
+ * - Streaming responses
+ * - Prompt building and context formatting
+ *
+ * This service is provider-agnostic - it works with any LLM provider registered
+ * in the LlmProviderRegistry
+ */
 @Injectable()
 export class LlmService {
   private readonly logger = new Logger(LlmService.name);
 
-  constructor(private readonly configService: RagConfigService) {}
+  constructor(
+    private readonly configService: RagConfigService,
+    private readonly llmRegistry: LlmProviderRegistry,
+  ) {}
 
-  /** Build dynamic provider per request */
-  private buildProvider(modelProvider: string, modelName: string): LlmProvider {
-    return LlmFactory.create(modelProvider as any, {
-      modelName,
-      baseUrl: this.configService.ollamaBaseUrl,
-      apiKey: this.configService.groqApiKey,
-      groqModel: modelName,
-      temperature: 0.7,
-    });
+  /**
+   * Get an LLM provider from the registry
+   *
+   * @param modelProvider - Provider name (e.g., 'ollama', 'groq')
+   * @param modelName - Model identifier (used as fallback, provider may use default)
+   * @returns The LLM provider instance
+   * @throws Error if provider not registered
+   */
+  private getProvider(modelProvider: string, modelName: string) {
+    this.logger.debug(
+      `Retrieving provider: "${modelProvider}" with model: "${modelName}"`,
+    );
+
+    try {
+      return this.llmRegistry.getProvider(modelProvider);
+    } catch (error) {
+      const available = this.llmRegistry.getNames();
+      this.logger.error(
+        `Failed to get provider "${modelProvider}". Available: ${available.join(', ')}`,
+      );
+      throw error;
+    }
   }
 
-  /** Build prompt */
+  /**
+   * Build RAG prompt template
+   * Combines context and question into a structured prompt
+   */
   private buildRagPrompt(context: string, question: string): string {
     return `
 You are a helpful assistant that answers questions based on the provided context.
@@ -301,6 +331,9 @@ Answer:
 `.trim();
   }
 
+  /**
+   * Format retrieved documents into readable context
+   */
   private formatContext(docs: Document[]): string {
     return docs
       .map((doc, index) => {
@@ -311,6 +344,10 @@ Answer:
       .join('\n\n---\n\n');
   }
 
+  /**
+   * Remove duplicate prefix from new text
+   * Prevents repeated output during streaming
+   */
   private removeDuplicatePrefix(newText: string, accumulated: string): string {
     if (!accumulated) return newText;
     const tail = accumulated.slice(-50);
@@ -320,7 +357,15 @@ Answer:
     return newText;
   }
 
-  // 🔥 UPDATED: Now takes provider + modelName
+  /**
+   * Generate answer using RAG with a specific LLM provider
+   *
+   * @param question - User's question
+   * @param relevantDocs - Retrieved document chunks from vector store
+   * @param modelProvider - LLM provider name (e.g., 'ollama', 'groq')
+   * @param modelName - Model identifier for provider
+   * @returns Generated answer based on context
+   */
   async generateAnswer(
     question: string,
     relevantDocs: Document[],
@@ -328,35 +373,48 @@ Answer:
     modelName: string,
   ): Promise<string> {
     try {
-      const provider = this.buildProvider(modelProvider, modelName);
+      const provider = this.getProvider(modelProvider, modelName);
 
       const context = this.formatContext(relevantDocs);
       const prompt = this.buildRagPrompt(context, question);
 
       this.logger.log(
-        `Generating answer with provider=${modelProvider}, model=${modelName}`,
+        `Generating answer [provider=${modelProvider}, model=${modelName}, docs=${relevantDocs.length}]`,
       );
 
       const answer = await provider.generateAnswer(prompt);
       return answer.trim();
     } catch (error: any) {
-      this.logger.error('Error generating answer:', error);
+      this.logger.error(
+        `Error generating answer with ${modelProvider}:`,
+        error,
+      );
       throw new Error(`Failed to generate answer: ${error?.message}`);
     }
   }
 
-  /** Simple model call */
+  /**
+   * Generate a simple response without RAG context
+   *
+   * @param prompt - Direct prompt/question
+   * @param modelProvider - LLM provider name
+   * @param modelName - Model identifier
+   * @returns Generated response
+   */
   async generateSimpleResponse(
     prompt: string,
     modelProvider: string,
     modelName: string,
   ): Promise<string> {
     try {
-      const provider = this.buildProvider(modelProvider, modelName);
+      const provider = this.getProvider(modelProvider, modelName);
       const response = await provider.generateAnswer(prompt);
       return response.trim();
     } catch (error: any) {
-      this.logger.error('Error generating simple response:', error);
+      this.logger.error(
+        `Error in simple response with ${modelProvider}:`,
+        error,
+      );
       throw new Error(`Failed to generate response: ${error.message}`);
     }
   }
@@ -369,10 +427,14 @@ Answer:
     modelName: string,
   ): AsyncGenerator<string> {
     try {
-      const provider = this.buildProvider(modelProvider, modelName);
+      const provider = this.getProvider(modelProvider, modelName);
 
       const context = this.formatContext(relevantDocs);
       const prompt = this.buildRagPrompt(context, question);
+
+      this.logger.log(
+        `Streaming answer [provider=${modelProvider}, model=${modelName}]`,
+      );
 
       const stream = provider.streamAnswer(prompt);
       let lastOutput = '';
@@ -387,7 +449,7 @@ Answer:
         }
       }
     } catch (error: any) {
-      this.logger.error('Error streaming answer:', error);
+      this.logger.error(`Error streaming with ${modelProvider}:`, error);
       throw new Error(`Failed to stream answer: ${error.message}`);
     }
   }
