@@ -51,6 +51,7 @@ model Document {
   storagePath String // e.g. local path or S3 key
   mimeType    String
   size        Int // in bytes
+  chunkCount  Int      @default(0) // Number of chunks this document was split into
   checksum    String? // optional: to dedupe
   createdAt   DateTime @default(now())
 
@@ -66,6 +67,7 @@ model ChatSession {
   title         String
   modelProvider String? // e.g. "ollama", "openai", "local"
   modelName     String? // e.g. "qwen2:1.5b", "gpt-4.1"
+  documentCount Int      @default(0) // Track number of documents in this chat
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
