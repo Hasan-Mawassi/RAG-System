@@ -22,7 +22,8 @@ export const ChatList = ({
         </div>
       ) : (
         chats.map((chat) => {
-          const docs = chatDocuments?.[chat.id] || [];
+          // Use documentCount from database if available, otherwise fall back to local state
+          const docCount = chat.documentCount ?? chatDocuments?.[chat.id]?.length ?? 0;
 
           return (
             <div key={chat.id}>
@@ -36,8 +37,8 @@ export const ChatList = ({
                     ? "bg-blue-900/40"
                     : "bg-blue-100"
                   : isDark
-                  ? "hover:bg-gray-800"
-                  : "hover:bg-gray-100"
+                    ? "hover:bg-gray-800"
+                    : "hover:bg-gray-100"
               }
             `}
               >
@@ -64,8 +65,8 @@ export const ChatList = ({
                   ${isDark ? "text-gray-300" : "text-gray-600"}
                 `}
                   >
-                    <FileText size={14} />
-                    {docs.length}
+                    <FileText className="text-blue-600" size={14} />
+                    {docCount}
                   </div>
 
                   <button
@@ -78,7 +79,7 @@ export const ChatList = ({
                   ${isDark ? "text-gray-400" : "text-gray-500"}
                 `}
                   >
-                    <Trash2 size={14} />
+                    <Trash2 className="text-red-600" size={14} />
                   </button>
                 </div>
               </div>
