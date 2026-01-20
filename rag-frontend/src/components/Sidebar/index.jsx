@@ -18,6 +18,7 @@ const Sidebar = ({
   uploadDocument,
   deleteDocument,
   isUploading,
+  chatDocumentCounts,
 }) => {
   const { logout } = useAuth();
 
@@ -76,6 +77,7 @@ const Sidebar = ({
             activeChatId={activeChatId}
             onOpenChat={onOpenChat}
             onDeleteChat={onDeleteChat}
+            chatDocuments={chatDocumentCounts}
             isDark={isDarkMode}
           />
 
