@@ -15,6 +15,35 @@ export class DocumentRepository {
     return this.prisma.document.create({ data });
   }
 
+  getDocumentById(documentId: string) {
+    return this.prisma.document.findUnique({
+      where: { id: documentId },
+    });
+  }
+
+  getDocumentsByChat(chatId: string) {
+    return this.prisma.document.findMany({
+      where: {
+        chatLinks: {
+          some: { chatId },
+        },
+      },
+    });
+  }
+
+  updateDocument(documentId: string, data: any) {
+    return this.prisma.document.update({
+      where: { id: documentId },
+      data,
+    });
+  }
+
+  getChatsByDocument(documentId: string) {
+    return this.prisma.chatDocument.findMany({
+      where: { documentId },
+    });
+  }
+
   linkDocumentToChat(chatId: string, documentId: string) {
     return this.prisma.chatDocument.create({
       data: { chatId, documentId },
