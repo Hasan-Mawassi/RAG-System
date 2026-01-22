@@ -33,7 +33,7 @@ useEffect(() => {
   if (isAuthenticated) {
     navigate("/chat", { replace: true });
   }
-}, [isAuthenticated]);
+}, [isAuthenticated, navigate]);
   return (
     // <div className="relative min-h-screen flex items-center justify-center text-white">
     <div className="relative min-h-screen flex items-center justify-center text-white px-4 py-8">
