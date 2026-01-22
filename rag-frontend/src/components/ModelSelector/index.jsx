@@ -1,6 +1,6 @@
 import React from "react";
-import { useSettings } from "../../contexts/SettingsContext.jsx";
-import { useTheme } from "../../contexts/ThemeContext.jsx";
+import { useSettings } from "../../contexts/SettingsContext.js";
+import { useTheme } from "../../contexts/ThemeContext.js";
 
 const MODEL_OPTIONS = {
   ollama: ["qwen2:1.5b"],

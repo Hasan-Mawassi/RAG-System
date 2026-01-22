@@ -11,14 +11,36 @@ const SUPPORTED_MIME_TYPES = [
 
 // Human-readable file extensions
 const SUPPORTED_EXTENSIONS = [".pdf", ".docx", ".txt", ".xlsx"];
+const FILE_SIZE_LIMITS_MB = {
+  "application/pdf": 10,
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document": 10, // DOCX
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": 5, // XLSX
+  "text/plain": 2,
+};
+const validateFile = (file) => {
+  if (!SUPPORTED_MIME_TYPES.includes(file.type)) {
+    return "Unsupported file type. Please upload PDF, DOCX, XLSX, or TXT.";
+  }
+
+  const maxSizeMB = FILE_SIZE_LIMITS_MB[file.type];
+  if (!maxSizeMB) {
+    return "File type is not allowed.";
+  }
+
+  const maxSizeBytes = maxSizeMB * 1024 * 1024;
+  if (file.size > maxSizeBytes) {
+    return `File too large. Max allowed for this file type is ${maxSizeMB} MB.`;
+  }
+
+  return null;
+};
 
 const FileUpload = ({ onUpload, isUploading, isDark }) => {
   const [isDragging, setIsDragging] = useState(false);
   const [error, setError] = useState("");
   const fileInputRef = useRef(null);
 
-  const isFileTypeSupported = (file) =>
-    SUPPORTED_MIME_TYPES.includes(file.type);
+
 
   const handleDrag = (e) => {
     e.preventDefault();
@@ -40,8 +62,9 @@ const FileUpload = ({ onUpload, isUploading, isDark }) => {
     const file = e.dataTransfer.files?.[0];
     if (!file) return;
 
-    if (!isFileTypeSupported(file)) {
-      setError("Unsupported file type. Please upload PDF, DOCX, XLSX, or TXT.");
+    const validationError = validateFile(file);
+    if (validationError) {
+      setError(validationError);
       return;
     }
 
@@ -53,8 +76,9 @@ const FileUpload = ({ onUpload, isUploading, isDark }) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (!isFileTypeSupported(file)) {
-      setError("Unsupported file type. Please upload PDF, DOCX, XLSX, or TXT.");
+    const validationError = validateFile(file);
+    if (validationError) {
+      setError(validationError);
       e.target.value = ""; // reset input
       return;
     }

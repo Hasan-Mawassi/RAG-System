@@ -1,28 +1,39 @@
 // // src/pages/LoginPage.jsx
-import React, { useState } from "react";
-import { useAuthApi } from "../../hooks/auth/useAuth.js";
+import React, { useEffect, useState } from "react";
+// import { useAuthApi } from "../../hooks/auth/useAuth.js";
 import AuthCard from "../../components/AuthCard";
 import AuthInput from "../../components/AuthInput";
 import AnimatedBackground from "../../components/AnimatedBackground";
 import { Link, useNavigate } from "react-router-dom";
 import RagLoginBackground from "../../components/RagLoginBackground/index.jsx";
+import { useAuth } from "../../contexts/AuthContext";
 
 const LoginPage = () => {
-  const { login } = useAuthApi();
   const navigate = useNavigate();
+  const { login, isAuthenticated } = useAuth();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-
   const handleLogin = async () => {
     setError("");
+    if(!email || !password){
+      setError("Please fill all fields");
+      return;
+    }
     const res = await login(email, password);
-    console.log(res)
-    if (res.success) navigate("/chat");
-    else setError(res.message);
+    if (res.success) {
+      navigate("/chat");
+    } else {
+      console.log(res);
+      setError(res.message);
+    }
   };
-
+useEffect(() => {
+  if (isAuthenticated) {
+    navigate("/chat", { replace: true });
+  }
+}, [isAuthenticated, navigate]);
   return (
     // <div className="relative min-h-screen flex items-center justify-center text-white">
     <div className="relative min-h-screen flex items-center justify-center text-white px-4 py-8">
@@ -41,14 +52,20 @@ const LoginPage = () => {
           label="Email"
           type="email"
           value={email}
-          onChange={setEmail}
+          onChange={(val) => {
+            setEmail(val);
+            if (error) setError("");
+          }}
         />
 
         <AuthInput
           label="Password"
           type="password"
           value={password}
-          onChange={setPassword}
+          onChange={(val) => {
+            setPassword(val);
+            if (error) setError("");
+          }}
         />
 
         <button

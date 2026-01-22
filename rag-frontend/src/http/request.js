@@ -33,11 +33,20 @@ export const request = async ({
     return response.data;
   } catch (error) {
     if (rollback) rollback();
+// console.log("error form request.js",error)
+ if (error.response?.data) {
+      return error.response.data;
+    }
 
     return {
-      error: true,
-      message: error.response?.data || "Something went wrong",
-      status: error.response?.status || 500,
+      message: "Network error",
+      error: "NetworkError",
+      statusCode: 0,
     };
+    // return {
+    //   error: true,
+    //   message: error.response?.data || "Something went wrong",
+    //   status: error.response?.status || 500,
+    // };
   }
 };

@@ -1,13 +1,14 @@
 // src/pages/RegisterPage.jsx
 import React, { useState } from "react";
-import { useAuthApi } from "../../hooks/auth/useAuth.js";
+// import { useAuthApi } from "../../hooks/auth/useAuth.js";
 import AuthCard from "../../components/AuthCard";
 import AuthInput from "../../components/AuthInput";
 import RagLoginBackground from "../../components/RagLoginBackground"; // ← animated background
 import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../../contexts/AuthContext";
 
 const RegisterPage = () => {
-  const { register } = useAuthApi();
+  const { register } = useAuth();
   const navigate = useNavigate();
 
   const [email, setEmail] = useState("");
@@ -17,7 +18,10 @@ const RegisterPage = () => {
   const handleSignup = async (e) => {
     e.preventDefault();
     setError("");
-
+   if(!email || !password){
+      setError("Please fill all fields");
+      return;
+    }
     const res = await register(email, password);
 
     if (res.success) navigate("/chat");
