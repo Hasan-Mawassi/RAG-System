@@ -33,7 +33,7 @@ export const request = async ({
     return response.data;
   } catch (error) {
     if (rollback) rollback();
-console.log("error form request.js",error)
+// console.log("error form request.js",error)
  if (error.response?.data) {
       return error.response.data;
     }
