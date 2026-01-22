@@ -10,6 +10,11 @@ const api = axios.create({
 let isRefreshing = false;
 let queue = [];
 
+const AUTH_ROUTES = [
+  "/auth/login",
+  "/auth/register",
+  "/auth/refresh",
+];
 function resolveQueue(error, response = null) {
   queue.forEach((p) => {
     if (error) p.reject(error);
@@ -22,10 +27,26 @@ function resolveQueue(error, response = null) {
 api.interceptors.response.use(
   (res) => res,
   async (error) => {
-    const originalRequest = error.config;
+    const originalRequest = error.config;                                 
+    // const status = error.response?.status;
+    const backendError = error.response?.data;
+    const url = originalRequest?.url || "";
 
     // If not unauthorized → throw error
     if (error.response?.status !== 401) {
+      return Promise.reject(error);
+    }
+ // 🚫 Skip refresh for auth routes
+    if (AUTH_ROUTES.some((route) => url.includes(route))) {
+      return Promise.reject(error);
+    }
+
+    // 🚫 Skip refresh for invalid login attempts
+    if (backendError?.message === "Invalid credentials") {
+      return Promise.reject(error);
+    }
+    // Ignore 401 from the refresh endpoint itself to prevent infinite loop
+    if (originalRequest.url === "/auth/refresh") {
       return Promise.reject(error);
     }
 
@@ -60,7 +81,9 @@ api.interceptors.response.use(
 
       console.error("Refresh token expired → logging out");
       // No token clearing needed, backend controls cookies
-      window.location.href = "/login";
+      if (window.location.pathname !== "/login") {
+        window.location.href = "/login";
+      }
 
       return Promise.reject(refreshError);
     }
