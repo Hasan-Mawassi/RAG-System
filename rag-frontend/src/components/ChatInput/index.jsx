@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Send, Loader2, Cpu } from "lucide-react";
-import { useTheme } from "../../contexts/ThemeContext.jsx";
-import { useSettings } from "../../contexts/SettingsContext.jsx";
+import { useTheme } from "../../contexts/ThemeContext.js";
+import { useSettings } from "../../contexts/SettingsContext.js";
 
 const ChatInput = ({ onSend, isLoading }) => {
   const [input, setInput] = useState("");
