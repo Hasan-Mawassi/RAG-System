@@ -5,7 +5,7 @@
 <!-- project overview -->
 <img src="./readme/title2.svg"/>
 
-# Retrieval-Augmented Generation (RAG) System  
+# Retrieval-Augmented Generation (RAG) System  ![Build & Deploy Status](https://github.com/Hasan-Mawassi/RAG-System/actions/workflows/deploy.yml/badge.svg)
 **Chat with your PDFs using Local + Cloud AI Models**
 
 ---
@@ -184,11 +184,42 @@ Users can configure:
 | <div align="center"><img src="./readme/demo/SmartClinic-highlights1.png"/></div> | -->
 <br><br>
 
+<!-- Deployment -->
+<img src="./readme/title7.svg"/>
+
+### 🔄 CI/CD & Automated Deployment
+
+**Live Demo🔗 http://20.174.18.166/signup**
+
+This project utilizes a robust **GitHub Actions** pipeline to automate the lifecycle of the RAG system, ensuring every change is verified and deployed without manual intervention.
+
+#### **The Workflow Pipeline:**
+1.  **Continuous Integration (CI):** * Triggered on every `push` or `pull_request` to the `main` branch.
+    * Automated linting and build checks for both **React (Frontend)** and **NestJS (Backend)**.
+    * Ensures code integrity before any deployment occurs.
+
+2.  **Continuous Deployment (CD):**
+    * **Docker Build & Push:** Automatically builds production-ready Docker images.
+    * **Image Registry:** Pushes the versioned images to **Docker Hub** (or GitHub Container Registry).
+    * **Remote Deployment:** Connects to the production VPS via **SSH** to:
+        * Pull the latest images.
+        * Restart services using `docker-compose`.
+        * Prune old images to maintain server health.
+
+#### **Tech Stack used for DevOps:**
+* **GitHub Actions:** Workflow orchestration.
+* **Docker & Docker Compose:** Containerization and service management.
+* **SSH/SCP:** Secure communication with the deployment server.
+* **Self-Hosted/Cloud VPS:** The final destination for the live application
+
+<img src="./readme/demo/cicd-pipeline.png"/>
+
+---
 <!-- Demo -->
 <img src="./readme/title5.svg"/>
 
 ### Responsive Screens (Mobile)
-
+**Live Demo🔗 http://20.174.18.166/signup**
 | Chat screen                                                       | SideBar screen                                                        | Setting screen                                                   |
 | ----------------------------------------------------------------- | --------------------------------------------------------------------- | -------------------------------------------------------------------- |
 | <img src="./readme/demo/chatmobile.jpg" width="200" height="400"/> | <img src="./readme/demo/sidebar-mobile.jpg" width="200" height="400"/> | <img src="./readme/demo/rag-setting.jpg" width="200" height="400"/> |
@@ -234,7 +265,7 @@ Users can configure:
 | ![Landing](./readme/demo/swagger2.png) | ![fsdaf](./readme/demo/swagger3.png) |
 
 <br><br>
-#  Running Project with Docker
+#  Running Project locally with Docker
 
 This project includes a fully Dockerized environment covering the **frontend**, **backend**, **PostgreSQL**, **ChromaDB**, and **Ollama** allowing you to run the entire system with one command.
 
