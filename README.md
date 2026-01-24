@@ -10,9 +10,12 @@
 
 ---
 
+**Live Demo🔗 http://20.174.18.166/signup**
+
+---
 ## 📌 Overview
 
-This RAG system enables users to upload PDFs, extract knowledge from them, and interact through intelligent chat sessions.  
+This a deployed RAG system enables users to upload PDFs, extract knowledge from them, and interact through intelligent chat sessions.  
 Each conversation is directly connected to the user's documents, providing **fact-grounded answers**, **traceable sources**, and a deeply interactive research experience.
 
 The system supports:
